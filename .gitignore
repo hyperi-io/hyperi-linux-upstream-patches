@@ -1,0 +1,28 @@
+.tmp/
+
+# Claude Code / AI assistant artifacts
+.claude/
+.cursor/
+.cursorrules
+.aider*
+.windsurf/
+.continue/
+.codeium/
+.github-copilot/
+CLAUDE.md
+CLAUDE.local.md
+GEMINI.md
+AGENTS.md
+.mcp.json
+hyperi-ai/
+
+# AI-generated docs and superpowers subtree
+docs/superpowers/
+docs/ai/
+docs/claude/
+
+# AI session/state files
+STATE.md
+TODO.md
+MEMORY.md
+.ai-*
