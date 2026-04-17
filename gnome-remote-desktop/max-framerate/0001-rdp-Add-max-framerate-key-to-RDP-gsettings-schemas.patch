@@ -1,0 +1,53 @@
+From 91b58e7bade90430d693f8dcd137dde5aca11db4 Mon Sep 17 00:00:00 2001
+From: Derek <derek@hyperi.io>
+Date: Wed, 25 Mar 2026 11:54:48 +1100
+Subject: [PATCH 1/4] rdp: Add max-framerate key to RDP gsettings schemas
+
+Add a configurable max-framerate setting to both the common RDP and
+headless RDP schemas. Default is 60. Lower values reduce CPU load
+from software RFX Progressive encoding.
+---
+ ...nome.desktop.remote-desktop.gschema.xml.in | 20 +++++++++++++++++++
+ 1 file changed, 20 insertions(+)
+
+diff --git a/src/org.gnome.desktop.remote-desktop.gschema.xml.in b/src/org.gnome.desktop.remote-desktop.gschema.xml.in
+index e98a9b3..d86de65 100644
+--- a/src/org.gnome.desktop.remote-desktop.gschema.xml.in
++++ b/src/org.gnome.desktop.remote-desktop.gschema.xml.in
+@@ -76,6 +76,16 @@
+         devices (e.g. mouse and keyboard).
+       </description>
+     </key>
++    <key name='max-framerate' type='u'>
++      <default>60</default>
++      <summary>Maximum framerate for the RDP session</summary>
++      <description>
++        The maximum framerate in frames per second used for the PipeWire
++        screencast stream that feeds the RDP encoder. Lower values reduce
++        CPU load from software encoding (RFX Progressive) at the cost of
++        visual smoothness. Typical values are 30 or 60. The default is 60.
++      </description>
++    </key>
+     <key name='auth-methods' flags='org.gnome.desktop.remote-desktop.GrdRdpAuthMethods'>
+       <default>['credentials']</default>
+       <summary>Allowed authentication methods</summary>
+@@ -137,6 +147,16 @@
+         authentication.
+       </description>
+     </key>
++    <key name='max-framerate' type='u'>
++      <default>60</default>
++      <summary>Maximum framerate for the RDP session</summary>
++      <description>
++        The maximum framerate in frames per second used for the PipeWire
++        screencast stream that feeds the RDP encoder. Lower values reduce
++        CPU load from software encoding (RFX Progressive) at the cost of
++        visual smoothness. Typical values are 30 or 60. The default is 60.
++      </description>
++    </key>
+   </schema>
+   <schema id='org.gnome.desktop.remote-desktop.vnc' path='/org/gnome/desktop/remote-desktop/vnc/'>
+     <key name='port' type='q'>
+-- 
+2.53.0
+

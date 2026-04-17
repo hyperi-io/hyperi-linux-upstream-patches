@@ -1,0 +1,109 @@
+From 840940054c4e009aa6a68fa390af6ea319ab3b38 Mon Sep 17 00:00:00 2001
+From: Derek <derek@hyperi.io>
+Date: Wed, 25 Mar 2026 11:55:58 +1100
+Subject: [PATCH 2/4] rdp: Add rdp-max-framerate GObject property to
+ GrdSettings
+
+Add a configurable max-framerate property (default 60, range 1-240)
+to the GrdSettings base class. This replaces the hardcoded
+TARGET_SURFACE_REFRESH_RATE constant in the layout manager.
+---
+ src/grd-settings.c | 28 ++++++++++++++++++++++++++++
+ src/grd-settings.h |  2 ++
+ 2 files changed, 30 insertions(+)
+
+diff --git a/src/grd-settings.c b/src/grd-settings.c
+index b7a1024..0dd75fe 100644
+--- a/src/grd-settings.c
++++ b/src/grd-settings.c
+@@ -36,6 +36,7 @@
+ 
+ #define GRD_DEFAULT_RDP_SERVER_PORT 3389
+ #define GRD_DEFAULT_VNC_SERVER_PORT 5900
++#define GRD_DEFAULT_RDP_MAX_FRAMERATE 60
+ 
+ enum
+ {
+@@ -60,6 +61,7 @@ enum
+   PROP_VNC_AUTH_METHOD,
+   PROP_RDP_AUTH_METHODS,
+   PROP_RDP_KERBEROS_KEYTAB,
++  PROP_RDP_MAX_FRAMERATE,
+ };
+ 
+ typedef struct _GrdSettingsPrivate
+@@ -80,6 +82,7 @@ typedef struct _GrdSettingsPrivate
+     char *server_cert_path;
+     char *server_key_path;
+     char *kerberos_keytab;
++    int max_framerate;
+   } rdp;
+   struct {
+     int port;
+@@ -124,6 +127,14 @@ grd_settings_get_max_parallel_connections (GrdSettings *settings)
+   return priv->max_parallel_connections;
+ }
+ 
++int
++grd_settings_get_rdp_max_framerate (GrdSettings *settings)
++{
++  GrdSettingsPrivate *priv = grd_settings_get_instance_private (settings);
++
++  return priv->rdp.max_framerate;
++}
++
+ void
+ grd_settings_override_rdp_port (GrdSettings *settings,
+                                 int          port)
+@@ -455,6 +466,9 @@ grd_settings_get_property (GObject    *object,
+     case PROP_RDP_KERBEROS_KEYTAB:
+       g_value_set_string (value, priv->rdp.kerberos_keytab);
+       break;
++    case PROP_RDP_MAX_FRAMERATE:
++      g_value_set_int (value, priv->rdp.max_framerate);
++      break;
+     default:
+       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+     }
+@@ -599,6 +613,9 @@ grd_settings_set_property (GObject      *object,
+       g_clear_pointer (&priv->rdp.kerberos_keytab, g_free);
+       priv->rdp.kerberos_keytab = g_value_dup_string (value);
+       break;
++    case PROP_RDP_MAX_FRAMERATE:
++      priv->rdp.max_framerate = g_value_get_int (value);
++      break;
+     default:
+       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+     }
+@@ -799,4 +816,15 @@ grd_settings_class_init (GrdSettingsClass *klass)
+                                                         G_PARAM_READWRITE |
+                                                         G_PARAM_CONSTRUCT |
+                                                         G_PARAM_STATIC_STRINGS));
++  g_object_class_install_property (object_class,
++                                   PROP_RDP_MAX_FRAMERATE,
++                                   g_param_spec_int ("rdp-max-framerate",
++                                                     "rdp max framerate",
++                                                     "rdp max framerate",
++                                                     1,
++                                                     240,
++                                                     GRD_DEFAULT_RDP_MAX_FRAMERATE,
++                                                     G_PARAM_READWRITE |
++                                                     G_PARAM_CONSTRUCT |
++                                                     G_PARAM_STATIC_STRINGS));
+ }
+diff --git a/src/grd-settings.h b/src/grd-settings.h
+index 94dfd3b..f14d88c 100644
+--- a/src/grd-settings.h
++++ b/src/grd-settings.h
+@@ -42,6 +42,8 @@ void grd_settings_override_max_parallel_connections (GrdSettings *settings,
+ 
+ int grd_settings_get_max_parallel_connections (GrdSettings *settings);
+ 
++int grd_settings_get_rdp_max_framerate (GrdSettings *settings);
++
+ void grd_settings_override_rdp_port (GrdSettings *settings,
+                                      int          port);
+ 
+-- 
+2.53.0
+

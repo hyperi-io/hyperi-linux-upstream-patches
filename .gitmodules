@@ -1,0 +1,7 @@
+[submodule "sources/gnome-remote-desktop"]
+	path = sources/gnome-remote-desktop
+	url = https://gitlab.gnome.org/catinspace-au/gnome-remote-desktop.git
+[submodule "sources/linux"]
+	path = sources/linux
+	url = https://github.com/hyperi-io/linux.git
+	shallow = true

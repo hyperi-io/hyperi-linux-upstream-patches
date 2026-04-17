@@ -1,0 +1,55 @@
+From c10516aadbc960b4f57c40dd30a844c0f4f76194 Mon Sep 17 00:00:00 2001
+From: Derek <derek@hyperi.io>
+Date: Wed, 25 Mar 2026 11:57:32 +1100
+Subject: [PATCH 4/4] rdp: Read max-framerate from settings instead of
+ hardcoded define
+
+Replace TARGET_SURFACE_REFRESH_RATE with the configurable
+rdp-max-framerate setting. The PipeWire screencast stream now
+negotiates maxFramerate from the GSettings value.
+---
+ src/grd-rdp-layout-manager.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/src/grd-rdp-layout-manager.c b/src/grd-rdp-layout-manager.c
+index 324c50f..b9b7cae 100644
+--- a/src/grd-rdp-layout-manager.c
++++ b/src/grd-rdp-layout-manager.c
+@@ -23,6 +23,7 @@
+ 
+ #include "grd-context.h"
+ #include "grd-rdp-cursor-renderer.h"
++#include "grd-settings.h"
+ #include "grd-rdp-pipewire-stream.h"
+ #include "grd-rdp-renderer.h"
+ #include "grd-rdp-server.h"
+@@ -33,7 +34,6 @@
+ #include "grd-stream.h"
+ 
+ #define LAYOUT_RECREATION_TIMEOUT_MS 50
+-#define TARGET_SURFACE_REFRESH_RATE 60
+ 
+ typedef enum
+ {
+@@ -99,13 +99,17 @@ surface_context_new (GrdRdpLayoutManager  *layout_manager,
+   g_autofree SurfaceContext *surface_context = NULL;
+   GrdRdpRenderer *renderer =
+     grd_session_rdp_get_renderer (layout_manager->session_rdp);
++  GrdSession *session = GRD_SESSION (layout_manager->session_rdp);
++  GrdContext *context = grd_session_get_context (session);
++  GrdSettings *settings = grd_context_get_settings (context);
++  uint32_t max_framerate = grd_settings_get_rdp_max_framerate (settings);
+ 
+   surface_context = g_new0 (SurfaceContext, 1);
+   surface_context->layout_manager = layout_manager;
+ 
+   surface_context->rdp_surface =
+     grd_rdp_renderer_try_acquire_surface (renderer,
+-                                          TARGET_SURFACE_REFRESH_RATE);
++                                          max_framerate);
+   if (!surface_context->rdp_surface)
+     {
+       g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+-- 
+2.53.0
+
